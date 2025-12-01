@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "860090275628",
+    "project_id": "eatsmart-appdana",
+    "storage_bucket": "eatsmart-appdana.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:860090275628:android:637523749a7f2e0bb37e89",
+        "android_client_info": {
+          "package_name": "com.example.eatsmart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAL2-VLGEVo1nDcDwKvDI_oB1h6BoE9vIE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.FirebaseApp;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etEmailLogin, etPasswordLogin;
@@ -21,6 +23,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login); // מחבר ל־XML
+        FirebaseApp.initializeApp(this);
+
 
         etEmailLogin = findViewById(R.id.etEmailLogin);
         etPasswordLogin = findViewById(R.id.etPasswordLogin);
