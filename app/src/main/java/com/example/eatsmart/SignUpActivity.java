@@ -3,6 +3,7 @@ package com.example.eatsmart; // להתאים לשם החבילה
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,7 +12,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class SignUpActivity extends AppCompatActivity {
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     private EditText etEmail, etPhone, etWeight, etHeight, etPassword, etConfirmPassword;
     private Button btnSignUp;
@@ -42,6 +46,17 @@ public class SignUpActivity extends AppCompatActivity {
             if (!isValidSignUp(email, phone, weight, height, password, confirmPassword)) {
                 return;
             }
+            mAuth.createUserWithEmailAndPassword(email,password)
+                    .addOnCompleteListener(task ->
+                    {
+                        if(task.isSuccessful()) {
+                            Toast.makeText(this, "Login success (בינתיים דמו)", Toast.LENGTH_SHORT).show();
+
+                        } else {
+                            Log.e("Dana", task.getException().getMessage());
+                            Toast.makeText(this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
 
             // כאן בעתיד תשמרי משתמש ב-DB / Firebase וכו'
             Toast.makeText(this, "Sign Up success (דמו)", Toast.LENGTH_SHORT).show();

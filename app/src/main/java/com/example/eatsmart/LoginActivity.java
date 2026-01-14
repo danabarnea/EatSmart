@@ -12,9 +12,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+
 
 public class LoginActivity extends AppCompatActivity {
 
+
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private EditText etEmailLogin, etPasswordLogin;
     private Button btnLogin;
     private TextView tvGoToSignUp;
@@ -24,7 +28,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login); // מחבר ל־XML
         FirebaseApp.initializeApp(this);
-
 
         etEmailLogin = findViewById(R.id.etEmailLogin);
         etPasswordLogin = findViewById(R.id.etPasswordLogin);
@@ -38,7 +41,20 @@ public class LoginActivity extends AppCompatActivity {
 
             if (!isValidLogin(email, password)) {
                 return;
+
             }
+            mAuth.signInWithEmailAndPassword(email,password)
+                    .addOnCompleteListener(task ->
+                    {
+                       if(task.isSuccessful()) {
+                           Toast.makeText(this, "Login success (בינתיים דמו)", Toast.LENGTH_SHORT).show();
+
+                       } else {
+                           Toast.makeText(this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                       }
+                    });
+
+
 
             // כאן בעתיד תעשי בדיקה מול שרת / DB
             Toast.makeText(this, "Login success (בינתיים דמו)", Toast.LENGTH_SHORT).show();
