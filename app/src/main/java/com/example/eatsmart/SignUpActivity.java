@@ -1,4 +1,4 @@
-package com.example.eatsmart; // להתאים לשם החבילה
+package com.example.eatsmart;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,9 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class SignUpActivity extends AppCompatActivity {
-    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    // אתחול Firebase Auth
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-    private EditText etEmail, etPhone, etWeight, etHeight, etPassword, etConfirmPassword;
+    private EditText etEmail, etWeight, etHeight, etPassword, etConfirmPassword;
     private Button btnSignUp;
     private TextView tvGoToLogin;
 
@@ -26,8 +27,8 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
+        // קישור רכיבי ה-UI
         etEmail = findViewById(R.id.etEmail);
-        etPhone = findViewById(R.id.etPhone);
         etWeight = findViewById(R.id.etWeight);
         etHeight = findViewById(R.id.etHeight);
         etPassword = findViewById(R.id.etPassword);
@@ -37,35 +38,38 @@ public class SignUpActivity extends AppCompatActivity {
 
         btnSignUp.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
-            String phone = etPhone.getText().toString().trim();
             String weight = etWeight.getText().toString().trim();
             String height = etHeight.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
             String confirmPassword = etConfirmPassword.getText().toString().trim();
 
-            if (!isValidSignUp(email, phone, weight, height, password, confirmPassword)) {
+            // בדיקת תקינות הקלט
+            if (!isValidSignUp(email, weight, height, password, confirmPassword)) {
                 return;
             }
-            mAuth.createUserWithEmailAndPassword(email,password)
-                    .addOnCompleteListener(task ->
-                    {
-                        if(task.isSuccessful()) {
-                            Toast.makeText(this, "Login success (בינתיים דמו)", Toast.LENGTH_SHORT).show();
 
+            // יצירת המשתמש ב-Firebase
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            // המעבר למסך בחירת תוכנית מתבצע כאן [cite: 12]
+                            Toast.makeText(this, "Registration Success!", Toast.LENGTH_SHORT).show();
+
+                            // יצירת Intent למעבר למסך ChoosePlanActivity
+                            Intent intent = new Intent(SignUpActivity.this, ChoosePlanActivity.class);
+                            startActivity(intent);
+
+                            // סגירת מסך ההרשמה כדי שלא יהיה ניתן לחזור אליו בלחיצה על 'אחורה'
+                            finish();
                         } else {
+                            // הודעת שגיאה במקרה של כישלון [cite: 8, 12]
                             Log.e("Dana", task.getException().getMessage());
-                            Toast.makeText(this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
-
-            // כאן בעתיד תשמרי משתמש ב-DB / Firebase וכו'
-            Toast.makeText(this, "Sign Up success (דמו)", Toast.LENGTH_SHORT).show();
-
-            // אחרי הרשמה אפשר לעבור למסך בחירת תוכנית או למסך הבית
-            // Intent intent = new Intent(this, ChoosePlanActivity.class);
-            // startActivity(intent);
         });
 
+        // מעבר למסך התחברות
         tvGoToLogin.setOnClickListener(v -> {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
@@ -73,20 +77,10 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
-    private boolean isValidSignUp(String email, String phone, String weight,
-                                  String height, String password, String confirmPassword) {
-
-        if (TextUtils.isEmpty(email)) {
-            etEmail.setError("Email is required");
-            return false;
-        }
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            etEmail.setError("Invalid email");
-            return false;
-        }
-
-        if (TextUtils.isEmpty(phone)) {
-            etPhone.setError("Phone is required");
+    private boolean isValidSignUp(String email, String weight, String height, String password, String confirmPassword) {
+        // אימייל חייב להיות בפורמט תקין [cite: 10]
+        if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            etEmail.setError("Valid email is required");
             return false;
         }
 
@@ -100,11 +94,7 @@ public class SignUpActivity extends AppCompatActivity {
             return false;
         }
 
-        if (TextUtils.isEmpty(password)) {
-            etPassword.setError("Password is required");
-            return false;
-        }
-
+        // הסיסמה חייבת להכיל לפחות 6 תווים [cite: 10]
         if (password.length() < 6) {
             etPassword.setError("At least 6 characters");
             return false;

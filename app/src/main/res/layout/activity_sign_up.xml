@@ -37,15 +37,6 @@
                 android:padding="10dp"
                 android:layout_marginBottom="16dp" />
 
-            <EditText
-                android:id="@+id/etPhone"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:hint="Phone"
-                android:inputType="phone"
-                android:background="@android:drawable/edit_text"
-                android:padding="10dp"
-                android:layout_marginBottom="16dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
