@@ -1,24 +1,38 @@
 package com.example.eatsmart;
 
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
+import android.widget.ImageButton;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
+        // אתחול כפתורי הניווט
+        ImageButton btnNavHome = findViewById(R.id.btnNavHome);
+//        ImageButton btnNavRecipes = findViewById(R.id.btnNavRecipes);
+        ImageButton btnNavShopping = findViewById(R.id.btnNavShopping);
+        ImageButton btnNavLocation = findViewById(R.id.btnNavLocation);
+        ImageButton btnNavProfile = findViewById(R.id.btnNavProfile);
+
+        // הגדרת פעולות ללחיצה (כרגע מציג הודעות טוסט עד שתיצרי את המסכים הבאים)
+        btnNavHome.setOnClickListener(v ->
+                Toast.makeText(this, "You are already Home", Toast.LENGTH_SHORT).show());
+
+//        btnNavRecipes.setOnClickListener(v ->
+//                Toast.makeText(this, "Opening Recipes...", Toast.LENGTH_SHORT).show());
+
+        btnNavShopping.setOnClickListener(v ->
+                Toast.makeText(this, "Opening Shopping List...", Toast.LENGTH_SHORT).show());
+
+        btnNavLocation.setOnClickListener(v ->
+                Toast.makeText(this, "Opening Store Locator...", Toast.LENGTH_SHORT).show());
+
+        btnNavProfile.setOnClickListener(v ->
+                Toast.makeText(this, "Opening Your Profile...", Toast.LENGTH_SHORT).show());
     }
 }

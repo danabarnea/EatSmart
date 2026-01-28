@@ -1,4 +1,4 @@
-package com.example.eatsmart; // להתאים לשם החבילה שלך
+package com.example.eatsmart;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,14 +11,11 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-
 
 public class LoginActivity extends AppCompatActivity {
 
-
-    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private FirebaseAuth mAuth;
     private EditText etEmailLogin, etPasswordLogin;
     private Button btnLogin;
     private TextView tvGoToSignUp;
@@ -26,9 +23,12 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login); // מחבר ל־XML
-        FirebaseApp.initializeApp(this);
+        setContentView(R.layout.activity_login);
 
+        // אתחול Firebase
+        mAuth = FirebaseAuth.getInstance();
+
+        // קישור רכיבי ה-XML
         etEmailLogin = findViewById(R.id.etEmailLogin);
         etPasswordLogin = findViewById(R.id.etPasswordLogin);
         btnLogin = findViewById(R.id.btnLogin);
@@ -39,29 +39,30 @@ public class LoginActivity extends AppCompatActivity {
             String email = etEmailLogin.getText().toString().trim();
             String password = etPasswordLogin.getText().toString().trim();
 
+            // בדיקת תקינות שדות
             if (!isValidLogin(email, password)) {
                 return;
-
             }
-            mAuth.signInWithEmailAndPassword(email,password)
-                    .addOnCompleteListener(task ->
-                    {
-                       if(task.isSuccessful()) {
-                           Toast.makeText(this, "Login success (בינתיים דמו)", Toast.LENGTH_SHORT).show();
 
-                       } else {
-                           Toast.makeText(this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                       }
+            // ניסיון התחברות ב-Firebase
+            mAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, task -> {
+                        if (task.isSuccessful()) {
+                            // התחברות הצליחה!
+                            Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+
+                            // מעבר למסך בחירת תוכנית
+                            Intent intent = new Intent(LoginActivity.this, ChoosePlanActivity.class);
+                            startActivity(intent);
+
+                            // סגירת מסך הלוגין
+                            finish();
+                        } else {
+                            // התחברות נכשלה
+                            String error = task.getException() != null ? task.getException().getMessage() : "Authentication failed";
+                            Toast.makeText(LoginActivity.this, "Error: " + error, Toast.LENGTH_LONG).show();
+                        }
                     });
-
-
-
-            // כאן בעתיד תעשי בדיקה מול שרת / DB
-            Toast.makeText(this, "Login success (בינתיים דמו)", Toast.LENGTH_SHORT).show();
-
-            // מעבר למסך הבית (בינתיים אפשר ליצור Activity ריק שנקרא HomeActivity)
-            // Intent intent = new Intent(this, HomeActivity.class);
-            // startActivity(intent);
         });
 
         // מעבר למסך Sign Up
@@ -71,23 +72,18 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    // הפונקציה שהייתה חסרה או לא סגורה אצלך
     private boolean isValidLogin(String email, String password) {
-        if (TextUtils.isEmpty(email)) {
-            etEmailLogin.setError("Email is required");
+        if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            etEmailLogin.setError("Please enter a valid email");
             return false;
         }
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            etEmailLogin.setError("Invalid email");
+
+        if (TextUtils.isEmpty(password) || password.length() < 6) {
+            etPasswordLogin.setError("Password must be at least 6 characters");
             return false;
         }
-        if (TextUtils.isEmpty(password)) {
-            etPasswordLogin.setError("Password is required");
-            return false;
-        }
-        if (password.length() < 6) {
-            etPasswordLogin.setError("At least 6 characters");
-            return false;
-        }
+
         return true;
     }
 }
