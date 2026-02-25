@@ -38,7 +38,7 @@ public class ChoosePlanActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "Selected: " + selectedPlan, Toast.LENGTH_SHORT).show();
                 // מעבר למסך הבית [cite: 22]
-                Intent intent = new Intent(this, HomeActivity.class); // ודאי שיצרת HomeActivity
+                Intent intent = new Intent(this, RecipesActivity.class); // ודאי שיצרת HomeActivity
                 startActivity(intent);
             }
         });
