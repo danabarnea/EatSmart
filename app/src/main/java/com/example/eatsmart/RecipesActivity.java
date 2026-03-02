@@ -6,6 +6,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.eatsmart.data.model.RecipeDetailResponse;
+
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -55,7 +58,23 @@ public class RecipesActivity extends AppCompatActivity {
                         // חיבור הנתונים ל-Adapter והצגתם במסך
                         adapter = new RecipeAdapter(RecipesActivity.this, recipes);
                         recyclerView.setAdapter(adapter);
-                    } else {
+
+                        // to delete
+                        service.getRecipeInfo(recipes.get(0).getId(), API_KEY).enqueue(new Callback<RecipeDetailResponse>() {
+
+                            @Override
+                            public void onResponse(Call<RecipeDetailResponse> call, Response<RecipeDetailResponse> response) {
+                                Log.d("API_ReS", response.body().toString());
+                            }
+
+                            @Override
+                            public void onFailure(Call<RecipeDetailResponse> call, Throwable t) {
+                                Log.e("API_ERROR", "Response failed: " + response.code());
+
+                            }
+                        });
+
+                        } else {
                         Toast.makeText(RecipesActivity.this, "לא נמצאו מתכונים", Toast.LENGTH_SHORT).show();
                     }
                 } else {
