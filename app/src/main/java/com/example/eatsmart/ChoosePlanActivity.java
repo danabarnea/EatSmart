@@ -1,52 +1,65 @@
 package com.example.eatsmart;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ChoosePlanActivity extends AppCompatActivity {
 
-    private String selectedPlan = ""; // משתנה לשמירת הבחירה
+    // Set מאפשר לשמור רשימה של בחירות ללא כפילויות
+    private Set<String> selectedPlans = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_plan);
 
-        // מציאת הכפתורים
-        Button btnGlutenFree = findViewById(R.id.btnGlutenFree);
-        Button btnNoSugar = findViewById(R.id.btnNoSugar);
-        Button btnLowCarb = findViewById(R.id.btnLowCarb);
-        Button btnVegan = findViewById(R.id.btnVegan);
-        Button btnBalanced = findViewById(R.id.btnBalanced);
+        // הגדרת כל כפתור עם צבע הפסטל הבהיר שלו והצבע הכהה שיופיע בלחיצה
+        setupPlanButton(findViewById(R.id.btnGlutenFree), "Gluten Free", "#D1C4E9", "#9575CD");
+        setupPlanButton(findViewById(R.id.btnNoSugar), "No Sugar", "#F8BBD0", "#F06292");
+        setupPlanButton(findViewById(R.id.btnLowCarb), "Low Carb", "#FFE0B2", "#FFB74D");
+        setupPlanButton(findViewById(R.id.btnVegan), "Vegan", "#C8E6C9", "#81C784");
+        setupPlanButton(findViewById(R.id.btnBalanced), "Balanced", "#F48FB1", "#AD1457");
+
         Button btnContinue = findViewById(R.id.btnContinue);
-
-        // הגדרת פעולה לכל כפתור בחירה
-        btnGlutenFree.setOnClickListener(v -> selectPlan("Gluten Free"));
-        btnNoSugar.setOnClickListener(v -> selectPlan("No Sugar"));
-        btnLowCarb.setOnClickListener(v -> selectPlan("Low Carb"));
-        btnVegan.setOnClickListener(v -> selectPlan("Vegan"));
-        btnBalanced.setOnClickListener(v -> selectPlan("Balanced"));
-
-        // כפתור המשך למסך הבית
         btnContinue.setOnClickListener(v -> {
-            if (selectedPlan.isEmpty()) {
-                // אם לא נבחר דבר - מוצגת אזהרה [cite: 23]
-                Toast.makeText(this, "Please select a plan first", Toast.LENGTH_SHORT).show();
+            if (selectedPlans.isEmpty()) {
+                Toast.makeText(this, "Please select at least one plan", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Selected: " + selectedPlan, Toast.LENGTH_SHORT).show();
-                // מעבר למסך הבית [cite: 22]
-                Intent intent = new Intent(this, RecipesActivity.class); // ודאי שיצרת HomeActivity
+                // שמירת הבחירות ב-SharedPreferences
+                SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+                sharedPreferences.edit().putString("chosen_plans", selectedPlans.toString()).apply();
+
+                // מעבר ל-HomeActivity ופתיחת לשונית המתכונים
+                Intent intent = new Intent(ChoosePlanActivity.this, HomeActivity.class);
+                intent.putExtra("OPEN_FRAGMENT", "recipes");
                 startActivity(intent);
+                finish();
             }
         });
     }
 
-    private void selectPlan(String planName) {
-        selectedPlan = planName;
-        Toast.makeText(this, "You chose: " + planName, Toast.LENGTH_SHORT).show();
-        // כאן אפשר להוסיף ויזואליות שהכפתור נבחר (למשל שינוי צבע)
+    private void setupPlanButton(Button btn, String planName, String normalColor, String selectedColor) {
+        btn.setOnClickListener(v -> {
+            if (selectedPlans.contains(planName)) {
+                // אם כבר נבחר - נבטל את הבחירה ונחזיר לצבע הפסטל הבהיר
+                selectedPlans.remove(planName);
+                ViewCompat.setBackgroundTintList(btn, ColorStateList.valueOf(Color.parseColor(normalColor)));
+                btn.setTextColor(Color.BLACK);
+            } else {
+                // אם לא נבחר - נוסיף לבחירה ונשנה לצבע כהה יותר עם טקסט לבן
+                selectedPlans.add(planName);
+                ViewCompat.setBackgroundTintList(btn, ColorStateList.valueOf(Color.parseColor(selectedColor)));
+                btn.setTextColor(Color.WHITE);
+            }
+        });
     }
 }

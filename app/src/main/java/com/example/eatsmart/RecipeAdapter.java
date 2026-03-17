@@ -1,6 +1,5 @@
 package com.example.eatsmart;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,45 +12,58 @@ import java.util.List;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
 
-    private Context context;
-    private List<Recipe> recipes;
+    private List<Recipe> recipeList;
+    private OnRecipeClickListener listener;
 
-    public RecipeAdapter(Context context, List<Recipe> recipes) {
-        this.context = context;
-        this.recipes = recipes;
+    public interface OnRecipeClickListener {
+        void onSpeakClick(Recipe recipe);
+        void onRecipeClick(Recipe recipe); // פונקציה חדשה למעבר מסך
+    }
+
+    public RecipeAdapter(List<Recipe> recipeList, OnRecipeClickListener listener) {
+        this.recipeList = recipeList;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
     public RecipeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_recipe, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_recipe, parent, false);
         return new RecipeViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecipeViewHolder holder, int position) {
-        Recipe recipe = recipes.get(position);
+        Recipe recipe = recipeList.get(position);
         holder.titleTextView.setText(recipe.getTitle());
 
-        // שימוש ב-Glide לטעינת תמונת המתכון מה-API
-        Glide.with(context)
+        Glide.with(holder.itemView.getContext())
                 .load(recipe.getImage())
+                .placeholder(android.R.drawable.ic_menu_gallery)
                 .into(holder.recipeImageView);
+
+        // לחיצה על המיקרופון
+        holder.btnSpeak.setOnClickListener(v -> listener.onSpeakClick(recipe));
+
+        // לחיצה על כל השורה למעבר למסך פירוט
+        holder.itemView.setOnClickListener(v -> listener.onRecipeClick(recipe));
     }
 
     @Override
     public int getItemCount() {
-        return recipes.size();
+        return recipeList != null ? recipeList.size() : 0;
     }
 
     public static class RecipeViewHolder extends RecyclerView.ViewHolder {
-        ImageView recipeImageView;
-        TextView titleTextView;
+        ImageView recipeImageView, btnSpeak;
+        TextView titleTextView, infoTextView;
 
         public RecipeViewHolder(@NonNull View itemView) {
             super(itemView);
-            recipeImageView = itemView.findViewById(R.id.recipeImageView);
-            titleTextView = itemView.findViewById(R.id.recipeTitleTextView);
+            recipeImageView = itemView.findViewById(R.id.ivRecipeImage);
+            titleTextView = itemView.findViewById(R.id.tvRecipeTitle);
+            infoTextView = itemView.findViewById(R.id.tvRecipeInfo);
+            btnSpeak = itemView.findViewById(R.id.btnSpeakIcon);
         }
     }
 }

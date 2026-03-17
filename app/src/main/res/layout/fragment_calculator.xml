@@ -3,53 +3,45 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="32dp"
+    android:padding="24dp"
     android:gravity="center"
     android:background="#FFF5F5"> <TextView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="Log In"
-    android:textSize="32sp"
+    android:text="Daily Calories"
+    android:textSize="28sp"
     android:textStyle="bold"
     android:textColor="#333333"
-    android:layout_marginBottom="40dp"/>
+    android:layout_marginBottom="32dp"/>
 
     <EditText
-        android:id="@+id/etEmail"
+        android:id="@+id/etCaloriesAmount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
+        android:hint="How many calories?"
+        android:inputType="number"
         android:padding="16dp"
         android:background="@android:drawable/edit_text"
         android:layout_marginBottom="16dp"/>
 
-    <EditText
-        android:id="@+id/etPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:padding="16dp"
-        android:background="@android:drawable/edit_text"
-        android:layout_marginBottom="24dp"/>
-
     <Button
-        android:id="@+id/btnLogin"
+        android:id="@+id/btnCalc"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="Log In"
-        android:backgroundTint="#C88EA3"
-        android:textColor="#FFFFFF"
+        android:text="Add to Total"
+        android:backgroundTint="#C8E6C9"
+        android:textColor="#2E7D32"
         android:textSize="18sp"
+        android:textStyle="bold"
         android:textAllCaps="false"/>
 
     <TextView
-        android:id="@+id/tvGoToSignUp"
+        android:id="@+id/tvTotalResult"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Don't have an account? Sign Up"
-        android:layout_marginTop="20dp"
+        android:text="Total today: 0 kcal"
+        android:layout_marginTop="40dp"
+        android:textSize="22sp"
         android:textColor="#AD1457"
         android:textStyle="bold"/>
 

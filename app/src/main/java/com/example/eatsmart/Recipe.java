@@ -1,13 +1,25 @@
 package com.example.eatsmart;
 
-// מחלקה זו מייצגת מתכון בודד כפי שהוא מגיע מה-API
 public class Recipe {
     private int id;
     private String title;
     private String image;
+    private int readyInMinutes;
 
-    // Getters - חשוב שהשמות יהיו מדויקים עבור ה-Adapter
+    // Constructor מעודכן
+    public Recipe(int id, String title, String image, int readyInMinutes) {
+        this.id = id;
+        this.title = title;
+        this.image = image;
+        this.readyInMinutes = readyInMinutes;
+    }
+
+    // ה-Getter שחסר לך וגרם לשגיאה האדומה:
+    public int getId() {
+        return id;
+    }
+
     public String getTitle() { return title; }
     public String getImage() { return image; }
-    public int getId() { return id; }
+    public int getReadyInMinutes() { return readyInMinutes; }
 }
