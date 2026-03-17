@@ -14,7 +14,6 @@ import java.util.Set;
 
 public class ChoosePlanActivity extends AppCompatActivity {
 
-    // Set מאפשר לשמור רשימה של בחירות ללא כפילויות
     private Set<String> selectedPlans = new HashSet<>();
 
     @Override
@@ -22,7 +21,7 @@ public class ChoosePlanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_plan);
 
-        // הגדרת כל כפתור עם צבע הפסטל הבהיר שלו והצבע הכהה שיופיע בלחיצה
+        // הגדרת כפתורים
         setupPlanButton(findViewById(R.id.btnGlutenFree), "Gluten Free", "#D1C4E9", "#9575CD");
         setupPlanButton(findViewById(R.id.btnNoSugar), "No Sugar", "#F8BBD0", "#F06292");
         setupPlanButton(findViewById(R.id.btnLowCarb), "Low Carb", "#FFE0B2", "#FFB74D");
@@ -34,11 +33,19 @@ public class ChoosePlanActivity extends AppCompatActivity {
             if (selectedPlans.isEmpty()) {
                 Toast.makeText(this, "Please select at least one plan", Toast.LENGTH_SHORT).show();
             } else {
-                // שמירת הבחירות ב-SharedPreferences
-                SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-                sharedPreferences.edit().putString("chosen_plans", selectedPlans.toString()).apply();
+                // הפיכת ה-Set למחרוזת נקייה ללא סוגריים: "Vegan, Low Carb"
+                String plansString = selectedPlans.toString()
+                        .replace("[", "")
+                        .replace("]", "");
 
-                // מעבר ל-HomeActivity ופתיחת לשונית המתכונים
+                SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                // אנחנו שומרים תחת שני המפתחות כדי שכל הפרגמנטים יזהו
+                editor.putString("chosen_plan", plansString);
+                editor.putString("chosen_plans", plansString);
+                editor.apply();
+
                 Intent intent = new Intent(ChoosePlanActivity.this, HomeActivity.class);
                 intent.putExtra("OPEN_FRAGMENT", "recipes");
                 startActivity(intent);
@@ -50,12 +57,10 @@ public class ChoosePlanActivity extends AppCompatActivity {
     private void setupPlanButton(Button btn, String planName, String normalColor, String selectedColor) {
         btn.setOnClickListener(v -> {
             if (selectedPlans.contains(planName)) {
-                // אם כבר נבחר - נבטל את הבחירה ונחזיר לצבע הפסטל הבהיר
                 selectedPlans.remove(planName);
                 ViewCompat.setBackgroundTintList(btn, ColorStateList.valueOf(Color.parseColor(normalColor)));
                 btn.setTextColor(Color.BLACK);
             } else {
-                // אם לא נבחר - נוסיף לבחירה ונשנה לצבע כהה יותר עם טקסט לבן
                 selectedPlans.add(planName);
                 ViewCompat.setBackgroundTintList(btn, ColorStateList.valueOf(Color.parseColor(selectedColor)));
                 btn.setTextColor(Color.WHITE);

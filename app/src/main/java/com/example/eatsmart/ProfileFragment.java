@@ -12,12 +12,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore; // הוספנו את זה
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ProfileFragment extends Fragment {
 
     private FirebaseFirestore db;
-    private String userId;
 
     @Nullable
     @Override
@@ -29,35 +28,28 @@ public class ProfileFragment extends Fragment {
         TextView tvWeight = view.findViewById(R.id.tvProfileWeight);
         TextView tvHeight = view.findViewById(R.id.tvProfileHeight);
 
-        // 1. זיהוי המשתמש
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
         if (user != null) {
-            userId = user.getUid(); // ה-ID הייחודי של המשתמש ב-Firebase
-
-            // הצגת שם המשתמש מהאימייל
             String name = user.getEmail().split("@")[0];
             tvName.setText(name);
 
-            // 2. שליפת נתונים מ-Firestore (משקל וגובה)
-            db.collection("users").document(userId).get()
+            // שליפת גובה ומשקל מ-Firebase
+            db.collection("users").document(user.getUid()).get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
-                            String weight = documentSnapshot.getString("weight");
-                            String height = documentSnapshot.getString("height");
-
-                            if (weight != null) tvWeight.setText(weight + " kg");
-                            if (height != null) tvHeight.setText(height + " cm");
+                            tvWeight.setText(documentSnapshot.getString("weight") + " kg");
+                            tvHeight.setText(documentSnapshot.getString("height") + " cm");
                         }
                     });
         }
 
-        // 3. שליפת התוכנית מהזיכרון המקומי (SharedPreferences)
+        // שליפת התוכנית מה-SharedPreferences
         SharedPreferences sharedPrefs = getActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
-        // וודאי שהמפתח כאן הוא "chosen_plan" כפי שהגדרת במסכים הקודמים
-        String plan = sharedPrefs.getString("chosen_plan", "No plan selected");
-        tvPlans.setText(plan);
+        // השתמשנו במפתח chosen_plan שעדכנו ב-Activity הקודם
+        String plans = sharedPrefs.getString("chosen_plan", "No plans selected");
+        tvPlans.setText(plans);
 
         return view;
     }
