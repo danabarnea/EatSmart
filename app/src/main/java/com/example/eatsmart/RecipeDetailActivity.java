@@ -40,6 +40,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
         ingredientsText = findViewById(R.id.detailIngredients);
         instructionsText = findViewById(R.id.detailInstructions);
 
+        // קבלת ה-ID שנשלח מהמסך הקודם דרך ה-Intent
         int recipeId = getIntent().getIntExtra("RECIPE_ID", -1);
         if (recipeId != -1) {
             fetchRecipeDetails(recipeId);
@@ -53,6 +54,9 @@ public class RecipeDetailActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * שימוש ב-Retrofit כדי למשוך את פרטי המתכון מה-API
+     */
     private void fetchRecipeDetails(int id) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.spoonacular.com/")
@@ -64,6 +68,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
         service.getRecipeInfo(id, API_KEY).enqueue(new Callback<RecipeDetailResponse>() {
             @Override
             public void onResponse(@NonNull Call<RecipeDetailResponse> call, @NonNull Response<RecipeDetailResponse> response) {
+                // בדיקה שהתשובה מהשרת תקינה
                 if (response.isSuccessful() && response.body() != null) {
                     updateUI(response.body());
                 }
@@ -76,11 +81,17 @@ public class RecipeDetailActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * עדכון רכיבי המסך בנתונים שהתקבלו
+     */
     private void updateUI(RecipeDetailResponse detail) {
         titleText.setText(detail.getTitle());
         timeText.setText("זמן הכנה: " + detail.getReadyInMinutes() + " דקות");
+
+        // טעינת התמונה מה-URL שהתקבל
         Glide.with(this).load(detail.getImage()).into(recipeImage);
 
+        // בניית רשימת המצרכים עם נקודות (Bullet Points)
         StringBuilder sb = new StringBuilder();
         if (detail.getExtendedIngredients() != null) {
             for (Ingredient ing : detail.getExtendedIngredients()) {
@@ -89,6 +100,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
         }
         ingredientsText.setText(sb.toString());
 
+        // הצגת הוראות ההכנה תוך ניקוי תגיות HTML
         if (detail.getInstructions() != null) {
             instructionsText.setText(Html.fromHtml(detail.getInstructions(), Html.FROM_HTML_MODE_COMPACT));
         }

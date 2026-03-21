@@ -20,6 +20,10 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+/**
+ * פרגמנט המציג את רשימת המתכונים.
+ * המטרה: לשלוף מתכונים מה-API בהתאם לדיאטה שנבחרה ולהציג אותם ברשימה נגללת.
+ */
 public class RecipesFragment extends Fragment {
 
     private RecyclerView recyclerView;
@@ -29,20 +33,30 @@ public class RecipesFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // ניפוח עיצוב הפרגמנט (XML)
         View view = inflater.inflate(R.layout.activity_recipes, container, false);
         recyclerView = view.findViewById(R.id.recipesRecyclerView);
 
+        // הגדרת מנהל הפריסה (LayoutManager) - רשימה אנכית רגילה
         if (recyclerView != null) {
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         }
 
+        /*
+         * שליפת הדיאטה הנבחרת מה-SharedPreferences.
+         * אם המשתמש לא בחר כלום, ברירת המחדל תהיה "balanced".
+         */
         SharedPreferences sharedPrefs = getActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         String selectedDiet = sharedPrefs.getString("chosen_plan", "balanced");
 
+        // קריאה לפונקציה שמושכת את המתכונים מהשרת
         fetchRecipes(selectedDiet);
         return view;
     }
 
+    /**
+     * פונקציה המבצעת את הקריאה ל-API בעזרת Retrofit.
+     */
     private void fetchRecipes(String diet) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.spoonacular.com/")
@@ -51,17 +65,26 @@ public class RecipesFragment extends Fragment {
 
         RecipeApiService service = retrofit.create(RecipeApiService.class);
 
+        // שליחת הבקשה לחיפוש מתכונים (15 תוצאות)
         service.searchRecipes(API_KEY, diet, 15).enqueue(new Callback<RecipeResponse>() {
             @Override
             public void onResponse(Call<RecipeResponse> call, Response<RecipeResponse> response) {
+                /*
+                 * בדיקה שהפרגמנט עדיין "חי" (isAdded) ושהתשובה תקינה.
+                 * זה מונע קריסות אם המשתמש יצא מהמסך לפני שהנתונים חזרו.
+                 */
                 if (isAdded() && response.isSuccessful() && response.body() != null) {
                     List<Recipe> recipes = response.body().getResults();
 
                     if (recipes != null && !recipes.isEmpty()) {
-                        // חיבור האדפטר עם המאזין ללחיצות
+                        /*
+                         * יצירת האדפטר וחיבור המאזין (Listener) לאירועים.
+                         * כאן אנחנו מגדירים מה יקרה בלחיצה על המיקרופון או על השורה.
+                         */
                         adapter = new RecipeAdapter(recipes, new RecipeAdapter.OnRecipeClickListener() {
                             @Override
                             public void onSpeakClick(Recipe recipe) {
+                                // קריאה למנוע הדיבור שנמצא ב-HomeActivity
                                 if (getActivity() instanceof HomeActivity) {
                                     ((HomeActivity) getActivity()).speakRecipeName(recipe.getTitle());
                                 }
@@ -69,12 +92,13 @@ public class RecipesFragment extends Fragment {
 
                             @Override
                             public void onRecipeClick(Recipe recipe) {
-                                // מעבר למסך הפירוט
+                                // מעבר למסך פירוט המתכון עם ה-ID המתאים
                                 Intent intent = new Intent(getActivity(), RecipeDetailActivity.class);
                                 intent.putExtra("RECIPE_ID", recipe.getId());
                                 startActivity(intent);
                             }
                         });
+                        // הצמדת האדפטר ל-RecyclerView
                         recyclerView.setAdapter(adapter);
                     }
                 }
@@ -82,6 +106,7 @@ public class RecipesFragment extends Fragment {
 
             @Override
             public void onFailure(Call<RecipeResponse> call, Throwable t) {
+                // הדפסת שגיאה בלוג למקרה של תקלה בתקשורת
                 Log.e("DEBUG_API", "Failure: " + t.getMessage());
             }
         });

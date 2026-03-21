@@ -19,8 +19,13 @@ import com.google.firebase.firestore.FirebaseFirestore; // חובה להוסיף
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * מסך ההרשמה של האפליקציה.
+ * המטרה: ליצור חשבון משתמש חדש ב-Firebase ולשמור את הנתונים הפיזיים שלו בענן.
+ */
 public class SignUpActivity extends AppCompatActivity {
 
+    // אתחול כלי העבודה של Firebase לאימות ושמירת נתונים
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); // אתחול Firestore
 
@@ -33,6 +38,7 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
+        // קישור הרכיבים מה-XML למשתנים בקוד
         etEmail = findViewById(R.id.etEmail);
         etWeight = findViewById(R.id.etWeight);
         etHeight = findViewById(R.id.etHeight);
@@ -41,6 +47,7 @@ public class SignUpActivity extends AppCompatActivity {
         btnSignUp = findViewById(R.id.btnSignUp);
         tvGoToLogin = findViewById(R.id.tvGoToLogin);
 
+        // הגדרת לחיצה על כפתור ההרשמה
         btnSignUp.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             String weight = etWeight.getText().toString().trim();
@@ -48,22 +55,28 @@ public class SignUpActivity extends AppCompatActivity {
             String password = etPassword.getText().toString().trim();
             String confirmPassword = etConfirmPassword.getText().toString().trim();
 
+            // בדיקת תקינות הקלט לפני שפונים לשרת
             if (!isValidSignUp(email, weight, height, password, confirmPassword)) {
                 return;
             }
 
+            /*
+             * יצירת משתמש חדש ב-Firebase Auth בעזרת אימייל וסיסמה.
+             */
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            // 1. שמירת הנתונים הנוספים ב-Firestore
+                            // 1. אם יצירת החשבון הצליחה, עוברים לשמירת הנתונים הנוספים ב-Firestore
                             saveUserData(weight, height);
                         } else {
+                            // הצגת הודעת שגיאה במקרה של כישלון (למשל אימייל שכבר קיים)
                             Log.e("Dana", task.getException().getMessage());
                             Toast.makeText(this, "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
         });
 
+        // מעבר למסך ההתחברות למשתמשים שכבר רשומים
         tvGoToLogin.setOnClickListener(v -> {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
@@ -71,24 +84,29 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
-    // פונקציה חדשה לשמירת הנתונים ב-Firestore
+    /**
+     * פונקציה חדשה לשמירת הנתונים האישיים (גובה ומשקל) בתוך מסד הנתונים Firestore.
+     */
     private void saveUserData(String weight, String height) {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             String userId = user.getUid();
 
-            // יצירת אובייקט עם הנתונים
+            // יצירת אובייקט מסוג Map כדי לארגן את הנתונים לפני השמירה
             Map<String, Object> userData = new HashMap<>();
             userData.put("weight", weight);
             userData.put("height", height);
 
-            // שמירה ב-Firestore תחת האוסף "users"
+            /*
+             * שמירה ב-Firestore תחת האוסף "users".
+             * אנחנו משתמשים ב-UID של המשתמש כשם המסמך כדי שנוכל למצוא אותו בקלות.
+             */
             db.collection("users").document(userId)
                     .set(userData)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Registration Success!", Toast.LENGTH_SHORT).show();
 
-                        // רק אחרי שהשמירה הצליחה, עוברים למסך הבא
+                        // רק אחרי שהשמירה הצליחה, עוברים למסך בחירת תוכנית התזונה
                         Intent intent = new Intent(SignUpActivity.this, ChoosePlanActivity.class);
                         startActivity(intent);
                         finish();
@@ -104,6 +122,10 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * פונקציית עזר לבדיקת תקינות השדות.
+     * בודקת פורמט אימייל, אורך סיסמה והתאמה בין סיסמאות.
+     */
     private boolean isValidSignUp(String email, String weight, String height, String password, String confirmPassword) {
         if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             etEmail.setError("Valid email is required");
