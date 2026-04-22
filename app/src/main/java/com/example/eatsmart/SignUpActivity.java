@@ -25,12 +25,23 @@ import java.util.Map;
  */
 public class SignUpActivity extends AppCompatActivity {
 
-    // אתחול כלי העבודה של Firebase לאימות ושמירת נתונים
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    private FirebaseFirestore db = FirebaseFirestore.getInstance(); // אתחול Firestore
+    // --- אתחול כלי העבודה של Firebase ---
 
+    // יצירת מופע של שירות האימות - משמש לניהול כניסה, הרשמה וסיסמאות
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+    // יצירת מופע של מסד הנתונים Firestore - משמש לשמירת מידע מובנה (כמו גובה ומשקל)
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+// --- הצהרה על רכיבי ממשק המשתמש (UI) ---
+
+    // תיבות טקסט להזנת נתונים (אימייל, משקל, גובה, סיסמה ואימות סיסמה)
     private EditText etEmail, etWeight, etHeight, etPassword, etConfirmPassword;
+
+    // כפתור לביצוע פעולת ההרשמה
     private Button btnSignUp;
+
+    // טקסט ללחיצה שמעביר את המשתמש חזרה למסך הלוגין
     private TextView tvGoToLogin;
 
     @Override
@@ -70,7 +81,7 @@ public class SignUpActivity extends AppCompatActivity {
                             saveUserData(weight, height);
                         } else {
                             // הצגת הודעת שגיאה במקרה של כישלון (למשל אימייל שכבר קיים)
-                            Log.e("Dana", task.getException().getMessage());
+                            Log.e("Dana", task.getException().getMessage()); // רק לצורך שלי לראות איפה השגיאה
                             Toast.makeText(this, "Error: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
@@ -88,12 +99,18 @@ public class SignUpActivity extends AppCompatActivity {
      * פונקציה חדשה לשמירת הנתונים האישיים (גובה ומשקל) בתוך מסד הנתונים Firestore.
      */
     private void saveUserData(String weight, String height) {
+        // שליפת המשתמש הנוכחי שמחובר כרגע למערכת ה-Authentication
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             String userId = user.getUid();
 
             // יצירת אובייקט מסוג Map כדי לארגן את הנתונים לפני השמירה
+            /*
+             * Map הוא מבנה נתונים של "מפתח" (Key) ו-"ערך" (Value).
+             * ב-Firestore, כל מסמך נשמר בצורה כזו (כמו מילון).
+             */
             Map<String, Object> userData = new HashMap<>();
+            // הכנסת הנתונים לתוך המפה: המפתח הוא שם השדה ב-Database, והערך הוא המשתנה מהקוד
             userData.put("weight", weight);
             userData.put("height", height);
 
@@ -103,16 +120,18 @@ public class SignUpActivity extends AppCompatActivity {
              */
             db.collection("users").document(userId)
                     .set(userData)
-                    .addOnSuccessListener(aVoid -> {
+                    .addOnSuccessListener(aVoid -> { // הגדרת מאזין שפועל במידה והשמירה בענן הצליחה
+                        // הצגת הודעה קצרה למשתמש שההרשמה הסתיימה בהצלחה
                         Toast.makeText(this, "Registration Success!", Toast.LENGTH_SHORT).show();
 
                         // רק אחרי שהשמירה הצליחה, עוברים למסך בחירת תוכנית התזונה
                         Intent intent = new Intent(SignUpActivity.this, ChoosePlanActivity.class);
-                        startActivity(intent);
-                        finish();
+                        startActivity(intent); // ביצוע המעבר למסך הבא
+                        finish(); // סגירת מסך ההרשמה כדי שהמשתמש לא יוכל לחזור אליו בכפתור "אחורה"
                     })
-                    .addOnFailureListener(e -> {
-                        Log.e("Dana", "Error saving data: " + e.getMessage());
+                    .addOnFailureListener(e -> { // הגדרת מאזין שפועל במידה והייתה שגיאה בתקשורת עם Firestore
+                        Log.e("Dana", "Error saving data: " + e.getMessage()); // בדיקה בשבילי
+                        // הצגת הודעה למשתמש שהחשבון נוצר אבל הנתונים הפיזיים לא נשמרו
                         Toast.makeText(this, "Data save failed, but user created.", Toast.LENGTH_SHORT).show();
 
                         // בכל זאת עוברים למסך הבא כדי לא לתקוע את המשתמש

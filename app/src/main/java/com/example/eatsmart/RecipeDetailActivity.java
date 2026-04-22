@@ -33,7 +33,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("פרטי המתכון");
         }
-
+// קישור רכיבי הממשק מה-XML
         recipeImage = findViewById(R.id.detailRecipeImage);
         titleText = findViewById(R.id.detailRecipeTitle);
         timeText = findViewById(R.id.detailReadyInMinutes);
@@ -43,6 +43,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
         // קבלת ה-ID שנשלח מהמסך הקודם דרך ה-Intent
         int recipeId = getIntent().getIntExtra("RECIPE_ID", -1);
         if (recipeId != -1) {
+            // קריאה לפונקציה שמבצעת את הפנייה לשרת לפי ה-ID הספציפי
             fetchRecipeDetails(recipeId);
         }
     }
@@ -64,7 +65,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 .build();
 
         RecipeApiService service = retrofit.create(RecipeApiService.class);
-
+// שליחת הבקשה בצירוף ה-ID והמפתח האישי
         service.getRecipeInfo(id, API_KEY).enqueue(new Callback<RecipeDetailResponse>() {
             @Override
             public void onResponse(@NonNull Call<RecipeDetailResponse> call, @NonNull Response<RecipeDetailResponse> response) {
@@ -89,6 +90,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
         timeText.setText("זמן הכנה: " + detail.getReadyInMinutes() + " דקות");
 
         // טעינת התמונה מה-URL שהתקבל
+        // שומרת את התמונה בזיכרון כדי שלא תרד שוב בכל פעם
         Glide.with(this).load(detail.getImage()).into(recipeImage);
 
         // בניית רשימת המצרכים עם נקודות (Bullet Points)

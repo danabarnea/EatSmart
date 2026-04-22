@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 public class CalculatorViewModel extends ViewModel {
 
     // יצירת משתנה מסוג LiveData שיכול להשתנות (Mutable)
+    // MutableLiveData הוא סוג של LiveData שניתן לשנות את הערך שלו.
     // המשתנה הזה מחזיק את סכום הקלוריות ומתחיל ב-0
     private MutableLiveData<Integer> totalCalories = new MutableLiveData<>(0);
 

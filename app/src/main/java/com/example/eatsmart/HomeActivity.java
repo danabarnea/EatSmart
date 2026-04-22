@@ -72,10 +72,11 @@ public class HomeActivity extends AppCompatActivity implements TextToSpeech.OnIn
         });
 
         // --- ברירת מחדל: טעינת עמוד המתכונים כשהאפליקציה נפתחת ---
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null) { // בדיקה האם האקטיביטי נוצרה עכשיו בפעם הראשונה (ולא עקב סיבוב מסך למשל)
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new RecipesFragment())
                     .commit();
+            // עדכון ויזואלי של התפריט התחתון כך שהאייקון של המתכונים יראה כ"נבחר"
             bottomNav.setSelectedItemId(R.id.nav_recipes);
         }
     }

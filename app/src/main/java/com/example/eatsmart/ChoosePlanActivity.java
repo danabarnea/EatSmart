@@ -53,6 +53,7 @@ public class ChoosePlanActivity extends AppCompatActivity {
                 /*
                  * שימוש ב-SharedPreferences לשמירה קבועה על זיכרון המכשיר.
                  * המידע יישמר גם אם נסגור את האפליקציה ונפתח אותה שוב.
+                 * זה הרבה יותר מהיר מפנייה לענן, וזה מאפשר לאפליקציה לזכור את הבחירה של המשתמש מיד כשהוא פותח אותה, גם בלי אינטרנט
                  */
                 SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -77,6 +78,7 @@ public class ChoosePlanActivity extends AppCompatActivity {
      */
     private void setupPlanButton(Button btn, String planName, String normalColor, String selectedColor) {
         btn.setOnClickListener(v -> {
+            // בדיקה אם התוכנית כבר קיימת ברשימת הנבחרים
             if (selectedPlans.contains(planName)) {
                 // המשתמש ביטל בחירה קיימת - מחזירים לצבע רגיל
                 selectedPlans.remove(planName);

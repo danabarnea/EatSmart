@@ -17,7 +17,7 @@ import java.util.List;
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {
 
     private List<Recipe> recipeList;
-    private OnRecipeClickListener listener;
+    private OnRecipeClickListener listener; // ה"מאזין" שידווח על לחיצות
 
     /**
      * ממשק (Interface) המאפשר להעביר אירועי לחיצה מהאדפטר בחזרה לפרגמנט.
@@ -27,7 +27,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         void onSpeakClick(Recipe recipe); // לחיצה להקראת שם המתכון
         void onRecipeClick(Recipe recipe); // לחיצה למעבר למסך פירוט המתכון
     }
-
+    // קונסטרקטור (בנאי) שמקבל את הנתונים ואת הליסנר
     public RecipeAdapter(List<Recipe> recipeList, OnRecipeClickListener listener) {
         this.recipeList = recipeList;
         this.listener = listener;
@@ -48,6 +48,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
      */
     @Override
     public void onBindViewHolder(@NonNull RecipeViewHolder holder, int position) {
+        // שליפת הנתון המתאים לפי המיקום ברשימה
         Recipe recipe = recipeList.get(position);
 
         // הצגת כותרת המתכון בתיבת הטקסט
@@ -87,6 +88,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
         public RecipeViewHolder(@NonNull View itemView) {
             super(itemView);
+            // מציאת הרכיבים פעם אחת בלבד בזמן יצירת השורה
             recipeImageView = itemView.findViewById(R.id.ivRecipeImage);
             titleTextView = itemView.findViewById(R.id.tvRecipeTitle);
             infoTextView = itemView.findViewById(R.id.tvRecipeInfo);

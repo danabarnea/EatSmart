@@ -25,9 +25,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * המטרה: לשלוף מתכונים מה-API בהתאם לדיאטה שנבחרה ולהציג אותם ברשימה נגללת.
  */
 public class RecipesFragment extends Fragment {
-
+    // הצהרה על רכיב הרשימה והמתאם (Adapter) שמקשר בין הנתונים לעיצוב
     private RecyclerView recyclerView;
     private RecipeAdapter adapter;
+    // מפתח אישי לגישה ל-API של המתכונים (חובה לזיהוי מול השרת)
     private static final String API_KEY = "d2f08716e363455face126efc89ff328";
 
     @Nullable
@@ -58,11 +59,11 @@ public class RecipesFragment extends Fragment {
      * פונקציה המבצעת את הקריאה ל-API בעזרת Retrofit.
      */
     private void fetchRecipes(String diet) {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.spoonacular.com/")
-                .addConverterFactory(GsonConverterFactory.create())
+        Retrofit retrofit = new Retrofit.Builder() // Retrofit היא ספרייה שהופכת כתובת אינטרנט (API) לאובייקטים של Java.
+                .baseUrl("https://api.spoonacular.com/") // הכתובת הראשית של השרת (Spoonacular).
+                .addConverterFactory(GsonConverterFactory.create()) // הוא רכיב שמבצע המרה אוטומטית בין טקסט בפורמט
                 .build();
-
+// יצירת ממשק השירות לפי ההגדרות שכתבנו ב-RecipeApiService
         RecipeApiService service = retrofit.create(RecipeApiService.class);
 
         // שליחת הבקשה לחיפוש מתכונים (15 תוצאות)
@@ -81,6 +82,7 @@ public class RecipesFragment extends Fragment {
                          * יצירת האדפטר וחיבור המאזין (Listener) לאירועים.
                          * כאן אנחנו מגדירים מה יקרה בלחיצה על המיקרופון או על השורה.
                          */
+                        // אתחול האדפטר עם רשימת המתכונים שהגיעו מהשרת
                         adapter = new RecipeAdapter(recipes, new RecipeAdapter.OnRecipeClickListener() {
                             @Override
                             public void onSpeakClick(Recipe recipe) {
@@ -99,6 +101,7 @@ public class RecipesFragment extends Fragment {
                             }
                         });
                         // הצמדת האדפטר ל-RecyclerView
+                        // עדיף כי הוא משתמש בתבנית עיצוב שנקראת "ViewHolder", שמאפשרת לו למחזר (Recycle) את רכיבי התצוגה של שורות שיצאו מהמסך עבור נתונים חדשים שנכנסים, ובכך הוא חוסך זיכרון ומונע "תקיעות" בזמן הגלילה.
                         recyclerView.setAdapter(adapter);
                     }
                 }
